@@ -62,15 +62,12 @@ import { V2OutboxModule } from './v2/outbox/v2-outbox.module';
 
 // In-memory storage for development (no Redis needed)
 class ThrottlerMemoryStorage {
-  private storage = new Map<
-    string,
-    {
-      totalHits: number;
-      expiresAt: number;
-      blockExpiresAt: number;
-      isBlocked: boolean;
-    }
-  >();
+  private storage = new Map<string, {
+    totalHits: number;
+    expiresAt: number;
+    blockExpiresAt: number;
+    isBlocked: boolean;
+  }>();
   private readonly logger = new Logger('ThrottlerMemoryStorage');
 
   constructor() {
@@ -228,17 +225,17 @@ class ThrottlerRedisStorage {
 // Factory to create appropriate storage based on environment
 async function createThrottlerStorage(
   configService: ConfigService,
-): Promise<any> {
+): Promise<ThrottlerMemoryStorage | ThrottlerRedisStorage> {
   const useRedis = configService.get<string>('REDIS_HOST');
 
   if (useRedis) {
     try {
       const Redis = (await import('ioredis')).default;
-      const redisHost = configService.get<string>(
+      const redisHost = configService.get(
         'throttler.redis.host',
         'localhost',
       );
-      const redisPort = configService.get<number>('throttler.redis.port', 6379);
+      const redisPort = configService.get('throttler.redis.port', 6379);
 
       const redis = new Redis({
         host: redisHost,
@@ -301,8 +298,8 @@ async function createThrottlerStorage(
         return {
           throttlers: [
             {
-              ttl: configService.get<number>('throttler.default.ttl', 60000),
-              limit: configService.get<number>('throttler.default.limit', 10),
+              ttl: configService.get('throttler.default.ttl', 60000),
+              limit: configService.get('throttler.default.limit', 10),
             },
           ],
           storage: storage,
@@ -314,10 +311,10 @@ async function createThrottlerStorage(
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         connection: {
-          host: configService.get<string>('REDIS_HOST', 'localhost'),
-          port: configService.get<number>('REDIS_PORT', 6379),
-          password: configService.get<string>('REDIS_PASSWORD'),
-          db: configService.get<number>('REDIS_DB', 0),
+          host: configService.get('REDIS_HOST', 'localhost'),
+          port: configService.get('REDIS_PORT', 6379),
+          password: configService.get('REDIS_PASSWORD'),
+          db: configService.get('REDIS_DB', 0),
         },
       }),
     }),
@@ -379,10 +376,6 @@ async function createThrottlerStorage(
     {
       provide: APP_GUARD,
       useClass: IdempotencyGuard,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: AuditLoggingInterceptor,
     },
     {
       provide: APP_INTERCEPTOR,
