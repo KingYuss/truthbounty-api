@@ -1,0 +1,21 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "main",
+    "origin",
+    "security/issue-667-prewave-be-071-centralize-structured-logging",
+    "security/issue-677-prewave-be-079-detect-and-quarantine-secrets-in"
+  ],
+  "parent": {
+    "main": null,
+    "origin": "main",
+    "security/issue-667-prewave-be-071-centralize-structured-logging": "main",
+    "security/issue-677-prewave-be-079-detect-and-quarantine-secrets-in": "main"
+  },
+  "order": [
+    "main",
+    "origin",
+    "security/issue-667-prewave-be-071-centralize-structured-logging",
+    "security/issue-677-prewave-be-079-detect-and-quarantine-secrets-in"
+  ]
+}
